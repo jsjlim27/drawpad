@@ -5,8 +5,11 @@ Very simple drawing program.
 * gcc
 * SDL 2.0
 * other stuff
-### Building
+### Building & Running
 ```
 gcc -o drawpad *.c `pkg-config --cflags --libs sdl2`
+```
+```
+./drawpad
 ```
 if that doesn't work, figure it out on your own :)

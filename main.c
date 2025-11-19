@@ -6,20 +6,13 @@ int main(int argc, char **argv)
         SDL_Window *win;
         SDL_Renderer *rend;
         SDL_Texture *tex;
-
-        SDL_Surface *surf;
         SDL_Cursor *cursor;
 
         struct DrawPadStates AppStates;
         bool running;
 
-        if ( !init_SDL(&win, &rend, &tex) )
+        if ( !init_SDL(&win, &rend, &tex, &cursor) )
                 return 1;
-
-        surf = SDL_LoadBMP("./sprites/brush.bmp");
-        cursor = SDL_CreateColorCursor(surf, 0, 0);
-        SDL_SetCursor(cursor);
-        SDL_ShowCursor(SDL_ENABLE);
 
         init_DrawPadStates(&AppStates);
         running = true;
@@ -59,6 +52,7 @@ int main(int argc, char **argv)
                 render_frame(&rend, &tex, &AppStates);
         }
 
+        SDL_FreeCursor(cursor);
         SDL_DestroyTexture(tex);
         SDL_DestroyRenderer(rend);
         SDL_DestroyWindow(win);

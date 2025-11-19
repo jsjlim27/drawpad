@@ -30,7 +30,8 @@ struct DrawPadStates {
 };
 
 /********************************* init.c ************************************/
-bool init_SDL(SDL_Window **win, SDL_Renderer **rend, SDL_Texture **tex);
+bool init_SDL(SDL_Window **win, SDL_Renderer **rend, SDL_Texture **tex,
+              SDL_Cursor **cursor);
 
 /********************************* states.c **********************************/
 void init_DrawPadStates(struct DrawPadStates *AppStates);

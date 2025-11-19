@@ -18,15 +18,15 @@
 #define INIT_COLOR(color) (SDL_Color){color}
 
 struct DrawPadStates {
-	int brushSize;
-	bool cleanCanvas;
-	SDL_Color bgColor;
-	SDL_Color brushColor;
+        int brushSize;
+        bool cleanCanvas;
+        SDL_Color bgColor;
+        SDL_Color brushColor;
 
-	SDL_Rect *data;
-	SDL_Rect *aux;
-	int dataLength;
-	int auxLength;
+        SDL_Rect *data;
+        SDL_Rect *aux;
+        int dataLength;
+        int auxLength;
 };
 
 /********************************* init.c ************************************/
@@ -42,5 +42,5 @@ void store_paint(int x, int y, struct DrawPadStates *AppStates);
 void retrieve_paint(struct DrawPadStates *AppStates);
 
 /******************************* render.c ************************************/
-void render_frame(SDL_Renderer **rend, SDL_Texture **tex,
-		  struct DrawPadStates *AppStates);
+void render_frame(SDL_Renderer **rend, SDL_Texture **tex, 
+                  struct DrawPadStates *AppStates);

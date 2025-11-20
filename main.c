@@ -1,5 +1,4 @@
 #include "drawpad.h"
-//#include <stdbool.h>
 
 int main(int argc, char **argv)
 { 
@@ -7,14 +6,10 @@ int main(int argc, char **argv)
         SDL_Renderer *rend;
         SDL_Texture *tex;
         SDL_Cursor *cursor;
-
-        struct DrawPadStates AppStates;
         bool running;
 
         if ( !init_SDL(&win, &rend, &tex, &cursor) )
                 return 1;
-
-        init_DrawPadStates(&AppStates);
         running = true;
 
         while (running) {
@@ -26,16 +21,19 @@ int main(int argc, char **argv)
                                         break;
 
                                 case SDL_MOUSEWHEEL:
-                                        update_brush_size(ev.wheel.y, &AppStates);
+                                        update_brush_size(ev.wheel.y);
                                         break;
 
                                 case SDL_MOUSEBUTTONDOWN:
                                         switch (ev.button.button) {
                                                 case SDL_BUTTON_LEFT:
-                                                        store_paint(ev.button.x, ev.button.y, &AppStates);
+                                                        store_paint(
+                                                                ev.button.x, 
+                                                                ev.button.y
+                                                        );
                                                         break;
                                                 case SDL_BUTTON_X1:
-                                                        clean_canvas(&AppStates);
+                                                        need_clean_canvas();
                                                         break;
                                         }
                                         break;
@@ -43,13 +41,16 @@ int main(int argc, char **argv)
                                 case SDL_MOUSEMOTION:
                                         switch (ev.motion.state) {
                                                 case SDL_BUTTON_LEFT:
-                                                        store_paint(ev.motion.x, ev.motion.y, &AppStates);
+                                                        store_paint(
+                                                                ev.motion.x, 
+                                                                ev.motion.y
+                                                        );
                                                         break;
                                         }
                                         break;
                         }
                 }
-                render_frame(&rend, &tex, &AppStates);
+                render_frame(&rend, &tex);
         }
 
         SDL_FreeCursor(cursor);

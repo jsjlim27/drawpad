@@ -1,31 +1,31 @@
 #include "drawpad.h"
 
-static struct SDL_Rect cursor;
+static SDL_Rect *dataRecv = NULL;
+static SDL_Rect *auxRecv = NULL;
+static int dataRecvLength = 0;
+static int auxRecvLength = 0;
 
-void render_frame(SDL_Renderer **rend, SDL_Texture **tex,
-                  struct DrawPadStates *AppStates);
+static void render_texture(SDL_Renderer **rend, SDL_Texture **tex);
+static void render_blank_canvas(SDL_Renderer **rend, SDL_Texture **tex);
+static bool frame_has_data_to_draw();
+static bool data_is_split();
 
-static void render_texture(SDL_Renderer **rend, SDL_Texture **tex,
-                           struct DrawPadStates *AppStates);
-
-static void render_blank_canvas(SDL_Renderer **rend, SDL_Texture **tex,
-                                struct DrawPadStates *AppStates);
-
-static bool frame_has_data_to_draw(const struct DrawPadStates *AppStates);
-static bool data_is_split(const struct DrawPadStates *AppStates);
-
-void render_frame(SDL_Renderer **rend, SDL_Texture **tex,
-                  struct DrawPadStates *AppStates)
+void render_frame(SDL_Renderer **rend, SDL_Texture **tex)
 {
-        retrieve_paint(AppStates);
+        retrieve_paint(&dataRecv, &dataRecvLength,
+                       &auxRecv, &auxRecvLength);
 
-        if ( frame_has_data_to_draw(AppStates) )
-                render_texture(rend, tex, AppStates);
+        if ( frame_has_data_to_draw() )
+                render_texture(rend, tex);
 
-        if (AppStates->cleanCanvas)
-                render_blank_canvas(rend, tex, AppStates);
+        if ( get_clean_canvas() )
+                render_blank_canvas(rend, tex);
 
-        SDL_SetRenderDrawColor( *rend, COLOR(AppStates->bgColor) );
+        SDL_SetRenderDrawColor(*rend,
+                               get_bg_red(),
+                               get_bg_green(),
+                               get_bg_blue(), 255);
+
         SDL_RenderClear(*rend);
         SDL_RenderCopy(*rend, *tex, NULL, NULL);
 
@@ -35,50 +35,58 @@ void render_frame(SDL_Renderer **rend, SDL_Texture **tex,
         SDL_Delay(FRAME_DELAY);
 }
 
-static void render_texture(SDL_Renderer **rend, SDL_Texture **tex,
-                           struct DrawPadStates *AppStates)
+static void render_texture(SDL_Renderer **rend, SDL_Texture **tex)
 {
         // start rendering to texture:
         SDL_SetRenderTarget(*rend, *tex);
 
-        SDL_SetRenderDrawColor(*rend, COLOR(AppStates->brushColor));
+        SDL_SetRenderDrawColor(*rend,
+                               get_brush_red(), 
+                               get_brush_green(), 
+                               get_brush_blue(), 255);
 
         SDL_RenderDrawRects(*rend, 
-                            AppStates->data, AppStates->dataLength);
+                            dataRecv, dataRecvLength);
         SDL_RenderFillRects(*rend, 
-                            AppStates->data, AppStates->dataLength);
+                            dataRecv, dataRecvLength);
 
-        if ( data_is_split(AppStates) )
+        if ( data_is_split() )
         {
                 SDL_RenderDrawRects(*rend, 
-                                    AppStates->aux, 
-                                    AppStates->auxLength);
+                                    auxRecv,
+                                    auxRecvLength);
                 SDL_RenderFillRects(*rend, 
-                                    AppStates->aux, 
-                                    AppStates->auxLength);
+                                    auxRecv, 
+                                    auxRecvLength);
         }
         // set render target back to window:
         SDL_SetRenderTarget(*rend, NULL);
 }
 
-static void render_blank_canvas(SDL_Renderer **rend, SDL_Texture **tex,
-                                struct DrawPadStates *AppStates)
+static void render_blank_canvas(SDL_Renderer **rend, SDL_Texture **tex)
 {
         SDL_SetRenderTarget(*rend, *tex);
-        SDL_SetRenderDrawColor(*rend, COLOR(AppStates->bgColor));
+
+        SDL_SetRenderDrawColor(*rend, 
+                               get_bg_red(),
+                               get_bg_green(),
+                               get_bg_blue(), 255);
+
         SDL_RenderClear(*rend);
         SDL_SetRenderTarget(*rend, NULL);
 
-        AppStates->cleanCanvas = false;
+        cleaned_canvas();
 }
 
-static bool frame_has_data_to_draw(const struct DrawPadStates *AppStates)
+static bool frame_has_data_to_draw()
 {
-        return AppStates->data != NULL || AppStates->aux != NULL 
-                || AppStates->dataLength != 0 || AppStates->auxLength != 0;
+        return dataRecv != NULL 
+                || auxRecv != NULL 
+                 || dataRecvLength != 0 
+                  || auxRecvLength != 0;
 }
 
-static bool data_is_split(const struct DrawPadStates *AppStates)
+static bool data_is_split()
 {
-        return AppStates->aux != NULL && AppStates->auxLength > 0;
+        return auxRecv != NULL && auxRecvLength > 0;
 }

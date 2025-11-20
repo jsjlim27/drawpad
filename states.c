@@ -1,28 +1,39 @@
 #include "drawpad.h"
 
-void init_DrawPadStates(struct DrawPadStates *AppStates) 
-{
-        AppStates->brushSize = DEFAULT_BRUSH_SIZE;
-        AppStates->cleanCanvas = false;
-        AppStates->bgColor = INIT_COLOR(DEFAULT_BG_COLOR);
-        AppStates->brushColor = INIT_COLOR(DEFAULT_BRUSH_COLOR);
+struct DrawPadStates {
+        int brushSize;
+        bool cleanCanvas;
+        SDL_Color bgColor;
+        SDL_Color brushColor;
+};
 
-        AppStates->data = NULL;
-        AppStates->aux = NULL;
-        AppStates->dataLength = 0;
-        AppStates->auxLength = 0;
+static struct DrawPadStates states = {
+        .brushSize = DEFAULT_BRUSH_SIZE,
+        .cleanCanvas = false,
+        .bgColor = INIT_COLOR(DEFAULT_BG_COLOR),
+        .brushColor = INIT_COLOR(DEFAULT_BRUSH_COLOR)
+};
+
+void update_brush_size(int size)
+{
+        states.brushSize = 
+                states.brushSize + size * BRUSH_SIZE_CHANGE_FACTOR;
+
+        if (states.brushSize < MIN_BRUSH_SIZE)
+                states.brushSize = MIN_BRUSH_SIZE;
 }
 
-void clean_canvas(struct DrawPadStates *AppStates)
-{
-        AppStates->cleanCanvas = true;
-}
+void need_clean_canvas() { states.cleanCanvas = true; }
+void cleaned_canvas() { states.cleanCanvas = false; }
 
-void update_brush_size(int size, struct DrawPadStates *AppStates)
-{
-        AppStates->brushSize = 
-                AppStates->brushSize + size * BRUSH_SIZE_CHANGE_FACTOR;
+int get_brush_size() { return states.brushSize; }
 
-        if (AppStates->brushSize < MIN_BRUSH_SIZE)
-                AppStates->brushSize = MIN_BRUSH_SIZE;
-}
+int get_bg_red() { return states.bgColor.r; }
+int get_bg_green() { return states.bgColor.g; }
+int get_bg_blue() { return states.bgColor.b; }
+
+int get_brush_red() { return states.brushColor.r; }
+int get_brush_green() { return states.brushColor.g; }
+int get_brush_blue() { return states.brushColor.b; }
+
+bool get_clean_canvas() { return states.cleanCanvas; }

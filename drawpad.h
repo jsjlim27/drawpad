@@ -17,31 +17,32 @@
 #define COLOR(color) color.r, color.g, color.b, color.a
 #define INIT_COLOR(color) (SDL_Color){color}
 
-struct DrawPadStates {
-        int brushSize;
-        bool cleanCanvas;
-        SDL_Color bgColor;
-        SDL_Color brushColor;
-
-        SDL_Rect *data;
-        SDL_Rect *aux;
-        int dataLength;
-        int auxLength;
-};
-
 /********************************* init.c ************************************/
 bool init_SDL(SDL_Window **win, SDL_Renderer **rend, SDL_Texture **tex,
               SDL_Cursor **cursor);
 
 /********************************* states.c **********************************/
-void init_DrawPadStates(struct DrawPadStates *AppStates);
-void clean_canvas(struct DrawPadStates *AppStates);
-void update_brush_size(int size, struct DrawPadStates *AppStates);
+void update_brush_size(int size);
+
+void need_clean_canvas();
+void cleaned_canvas();
+
+int get_brush_size();
+
+int get_bg_red();
+int get_bg_green();
+int get_bg_blue();
+
+int get_brush_red();
+int get_brush_green();
+int get_brush_blue();
+
+bool get_clean_canvas();
 
 /******************************* paintbuffer.c *******************************/
-void store_paint(int x, int y, struct DrawPadStates *AppStates);
-void retrieve_paint(struct DrawPadStates *AppStates);
+void store_paint(int x, int y);
+void retrieve_paint(SDL_Rect **dataSend, int *dataSendLength, 
+                    SDL_Rect **auxSend, int *auxSendLength);
 
 /******************************* render.c ************************************/
-void render_frame(SDL_Renderer **rend, SDL_Texture **tex, 
-                  struct DrawPadStates *AppStates);
+void render_frame(SDL_Renderer **rend, SDL_Texture **tex);

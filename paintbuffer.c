@@ -2,45 +2,51 @@
 
 #define BUF_SIZE 4096 
 
-static SDL_Rect Specks[BUF_SIZE];
+static SDL_Rect specks[BUF_SIZE];
+static SDL_Rect *rear = specks; 
+static SDL_Rect *front = specks; 
 
-static SDL_Rect *rear = Specks; 
-static SDL_Rect *front = Specks;
-
-void store_paint(int x, int y, 
-                struct DrawPadStates *AppStates) 
+void store_paint(int x, int y)
 { 
-        if (front > Specks + BUF_SIZE - 1)
-                front = Specks;
+        if (front > specks + BUF_SIZE - 1)
+                front = specks;
 
         front->x = x; 
         front->y = y;
-        front->w = AppStates->brushSize;
-        front->h = AppStates->brushSize;
+        front->w = get_brush_size();
+        front->h = get_brush_size();
 
         front++;
 }
 
-void retrieve_paint(struct DrawPadStates *AppStates)
+void retrieve_paint(SDL_Rect **dataSend, int *dataSendLength,
+                    SDL_Rect **auxSend,  int *auxSendLength)
 {
+        // returning data is in a single contiguous region of specks[].
         if (front > rear)
         {
-                AppStates->data = rear;
-                AppStates->dataLength = front - rear;
+                *dataSend = rear;
+                *auxSend = NULL;
+
+                *dataSendLength = front - rear;
+                *auxSendLength = 0;
         }
+        // returning data is divided among two contiguous regions of specks[].
         else if (front < rear)
         {
-                AppStates->data = Specks;
-                AppStates->dataLength = front - Specks;
-                AppStates->aux = rear;
-                AppStates->auxLength = Specks + BUF_SIZE - rear;
+                *dataSend = specks;
+                *auxSend = rear;
+
+                *dataSendLength = front - specks;
+                *auxSendLength = specks + BUF_SIZE - rear;
         }
         else // (front == rear)
         {
-                AppStates->data = NULL;
-                AppStates->aux = NULL;
-                AppStates->dataLength = 0;
-                AppStates->auxLength = 0;
+                *dataSend = NULL;
+                *auxSend = NULL;
+
+                *dataSendLength = 0;
+                *auxSendLength = 0;
         }
         rear = front;
 }
